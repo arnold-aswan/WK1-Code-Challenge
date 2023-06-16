@@ -2,9 +2,14 @@
 let grossPay= prompt("Enter gross salary: ")
 let netPay
 let payeDue
-
+let taxableIncome 
 // RELIEFS 
 const personalRelief = 2400
+
+// TAX PAY
+const taxTier1 = 24000
+const taxTier2 = 32333
+const taxTier3 = 8332
 
 // PAYEE TAXES
 const payeTier1 = 0.1
@@ -24,7 +29,7 @@ const nssfTier2 = 720
 // 2. gets difference of the remaining then subjects to next tax bracket
 
 if(grossPay <= 24000) {
-    let taxableIncome = (grossPay * payeTier1)
+    taxableIncome = (grossPay * payeTier1)
     console.log(`taxable Income: ${taxableIncome}`)
     alert((`taxable Income: ${taxableIncome}`))
 
@@ -34,6 +39,33 @@ if(grossPay <= 24000) {
         alert(`PAYE DUE: 0`)
         console.log((`PAYE DUE: 0`))
     }
+
+} else if (grossPay > 24000 && grossPay <= 32333) {
+    let tax1 = (taxTier1 * payeTier1) 
+    grossPay = grossPay - tax1
+
+    if(grossPay < taxTier3) {
+        let tax2 = (grossPay * payeTier2)
+        taxableIncome = (tax1 + tax2)
+        grossPay = grossPay - taxableIncome
+        console.log(grossPay)
+   
+    } else if (grossPay > taxTier3) {
+        let tax2 = (taxTier3 * payeTier2)
+        taxableIncome = tax1 + tax2
+        grossPay = grossPay - taxableIncome
+        console.log(grossPay)
+    }
+
+} else if (grossPay > 32333) {
+    let tax1 = taxTier1 * payeTier1
+    grossPay = grossPay - tax1
+
+    let tax2 = taxTier3 * payeTier2
+    grossPay = grossPay - tax2
+
+    let tax3 = taxTier3 * payeTier3
+    grossPay = grossPay - tax3    
 }
 
 // 2. calculates the PAYE Deductions
