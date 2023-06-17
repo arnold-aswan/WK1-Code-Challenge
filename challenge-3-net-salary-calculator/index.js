@@ -1,8 +1,12 @@
 // 1. get inputs of basic salary & benefits
-let grossPay= prompt("Enter gross salary: ")
+let grossPay= prompt("Enter gross salary: ") 
+let grossTaxed
+let grossPayTax
 let netPay
 let payeDue
 let taxableIncome 
+let taxCharged
+let taxAfterRelief
 // RELIEFS 
 const personalRelief = 2400
 
@@ -22,74 +26,97 @@ const nssfTier2 = 720
 const nssfTotal = nssfTier1 + nssfTier2
 
 // NHIF DEDUCTIONS
-
+let nhif
 
 
 // PAYEE
 // 1. Takes gross pay subjects it to first tax bracket
 // 2. gets difference of the remaining then subjects to next tax bracket
+grossPayTax = grossPay - nssfTotal
+if(grossPayTax <= 24000) {
+    // Prints out taxable pay after nssf deductions
+    console.log(`Taxable pay after nssf deductions: ${grossPayTax}`)
 
-if(grossPay <= 24000) {
-    taxableIncome = (grossPay * payeTier1)
-    console.log(`Taxable Income: ${taxableIncome}`)
-    alert(`Taxable Income: ${taxableIncome}`)
+    // Gets PAYE charges 
+    payeDue = (grossPayTax * payeTier1)
+    console.log(`PAYE due before personal relief: ${payeDue}`)
+
+    // PAYE after personal reliefs deduction
+    payeDue = payeDue - personalRelief
+
+    if(payeDue < 0) {
+        payeDue = 0
+        console.log(`PAYE DUE after personal relief: ${payeDue}`)
+    } else {
+        console.log(`PAYE DUE after personal relief: ${payeDue}`)
+    }
     
-    // apply nssf Tier 1 & 2 deductions
-    netPay = grossPay - nssfTotal
+    // Calculates & prints the net pay after PAYE deductions
+    netPay = grossPayTax - payeDue
     console.log(`Net salary is: ${netPay}`)
     alert((`Net salary is: ${netPay}`))
 
-    // apply personal relief
-    // payeDue = (personalRelief - taxableIncome)
-    if(taxableIncome < personalRelief) {
-        console.log((`PAYE DUE: 0`))
-        alert(`PAYE DUE: 0`)
-    }
-
-} else if (grossPay > 24000 && grossPay <= 32333) {
+} else if (grossPayTax > 24000 && grossPayTax <= 32333) {
     console.log(`Middle Gross pay: ${grossPay}`)
 
-    let tax1 = (taxTier1 * payeTier1) 
-    grossPay = grossPay - taxTier1
+    // taxableIncome = grossPay - nssfTotal
+    taxableIncome = grossPayTax //=> get taxable pay
+    console.log(`Taxble Pay: ${taxableIncome}`)
 
-    if(grossPay < taxTier3) {
+    let tax1 = (taxTier1 * payeTier1) 
+    // grossPay = grossPay - taxTier1
+    // console.log(taxableIncome)
+    taxableIncome = taxableIncome - taxTier1
+    // console.log(`Taxble pay after tax1: ${taxableIncome}`)
+
+    // grossPay down here
+    if(taxableIncome < taxTier3) {
         // console.log(`less Middle Gross salary is: ${grossPay}`)
         
-        let tax2 = (grossPay * payeTier2)
-        taxableIncome = (tax1 + tax2)
-        console.log(`PAYE DUE before Relief: ${taxableIncome}`)
-        console.log(`PAYE DUE after Relief: ${taxableIncome - personalRelief}`)
+        // let tax2 = (grossPay * payeTier2)
+        let tax2 = (taxableIncome * payeTier2)
+        // taxableIncome = (tax1 + tax2)
+        taxCharged = tax1 + tax2
+        // console.log(`PAYE DUE before Relief: ${taxableIncome}`)
+        console.log(`PAYE DUE before Relief: ${taxCharged}`)
 
-        console.log(grossPay)
-        grossPay = grossPay - taxableIncome
-        console.log(`Middle Net salary is: ${grossPay}`)
-        alert(`Middle Net slary is: ${grossPay}`)
-   
-    } 
-    // else if (grossPay > taxTier3) {
-    //     console.log(`Middle 3 Gross salary is: ${grossPay}`)
-    //     let tax2 = (taxTier3 * payeTier2)
-    //     taxableIncome = tax1 + tax2
-    //     grossPay = grossPay - taxableIncome
-    //     console.log(`Middle 3 Net salary is: ${grossPay}`)
-    //     alert(`Middle 3 Net slary is: ${grossPay}`)
-    // }
+        taxAfterRelief = taxCharged - personalRelief
+        payeDue = taxAfterRelief
+        console.log(`PAYE DUE after Relief: ${payeDue.toFixed(2)}`)
 
-} else if (grossPay > 32333) {
+        // console.log(grossPay)
+        // grossPay = grossPay - taxableIncome
+        netPay = grossPay - payeDue
+        // console.log(`Middle Net salary is: ${grossPay}`)
+        console.log(`Middle Net salary is: ${netPay}`)
+        // alert(`Middle Net slary is: ${grossPay}`)
+        alert(`Middle Net slary is: ${netPay}`) 
+    }     
+
+} else if (grossPayTax > 32333) {
     console.log(`end gross salary: ${grossPay}`)
     let tax1 = taxTier1 * payeTier1
     let tax2 = taxTier3 * payeTier2
-    grossPay = grossPay - (taxTier1 + taxTier3)
 
-    let tax3 = grossPay * payeTier3
+    taxableIncome = grossPayTax
+    console.log(`Taxable pay: ${taxableIncome}`)
+   
+    grossTaxed = grossPayTax - (taxTier1 + taxTier3)
+    console.log(`gross taxed tax3 ${grossTaxed}`)
 
-    taxableIncome = tax1 + tax2 + tax3
-    grossPay = grossPay - taxableIncome 
-    netPay = grossPay
+    let tax3 = grossTaxed * payeTier3
+    
+    // Get full PAYE charges
+    taxCharged = tax1 + tax2 + tax3 
+    payeDue = taxCharged.toFixed(2)
+    console.log(`PAYE DUE before relief: ${payeDue}`)
 
-    // console.log(`End Net salary is: ${tax1} ${tax2} ${tax3} ${grossPay}`)
-    console.log(`PAYE DUE before relief: ${taxableIncome}`)
-    console.log(`PAYE DUE after Relief: ${taxableIncome - personalRelief}`)
+    // PAYE charges after personal Relief
+    taxAfterRelief = taxCharged - personalRelief
+    payeDue = taxAfterRelief
+    console.log(`PAYE DUE after Relief: ${payeDue.toFixed(2)}`)
+    netPay = grossPay - payeDue 
+
     console.log((`End Net slary is: ${netPay}`))
     alert(`End Net salary is: ${netPay}`) 
 }
@@ -102,3 +129,26 @@ if(grossPay <= 24000) {
     // PAYEE RELIEFS
     // personal releief  2400
 // 2.1 NHIF | NSSF Deductions
+
+
+
+
+
+// else if (grossPay > taxTier3) {
+            //     console.log(`Middle 3 Gross salary is: ${grossPay}`)
+            //     let tax2 = (taxTier3 * payeTier2)
+            //     taxableIncome = tax1 + tax2
+            //     grossPay = grossPay - taxableIncome
+            //     console.log(`Middle 3 Net salary is: ${grossPay}`)
+            //     alert(`Middle 3 Net slary is: ${grossPay}`)
+            // }
+
+
+// else if (grossPay > taxTier3) {
+    //     console.log(`Middle 3 Gross salary is: ${grossPay}`)
+    //     let tax2 = (taxTier3 * payeTier2)
+    //     taxableIncome = tax1 + tax2
+    //     grossPay = grossPay - taxableIncome
+    //     console.log(`Middle 3 Net salary is: ${grossPay}`)
+    //     alert(`Middle 3 Net slary is: ${grossPay}`)
+    // }
