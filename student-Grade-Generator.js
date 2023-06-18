@@ -2,7 +2,6 @@
 let grade = prompt("Please enter your grade: ")
 
 function testGrade(grade) {
-
     // checks if the grade entered is a valid grade or not
     if(grade < 0 || grade > 100) {
         // if grade entered is invalid it prints out invalid error message

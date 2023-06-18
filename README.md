@@ -16,7 +16,7 @@ If the speed is less than 70 it prints out an 'OK' message otherwise, for every 
 
 For example, if the speed is 80, it should print: “Points: 2”. If the driver gets more than 12 points, the function should print: “License suspended”.
 
-Drive safe folks, don't wanna get those licenses suspended now do we
+Drive safe folks, don't wanna get those licenses suspended now do we ;&#41
 
 
 # 3. Net Salary Calculator
@@ -27,8 +27,8 @@ This is a javascript script prompts the user to key in their gross salary as inp
 
 # Author
 
-Arnold Aswani
+Arnold Aswani.
 
 # License 
 
-Copyright (c) 2023 Arnold Aswani
+Copyright (c) 2023 Arnold Aswani.

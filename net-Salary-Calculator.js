@@ -7,15 +7,16 @@ let payeDue
 let taxableIncome 
 let taxCharged
 let taxAfterRelief
+
 // RELIEFS 
 const personalRelief = 2400
 
-// TAX PAY
+// TAX BRACKETS
 const taxTier1 = 24000
 const taxTier2 = 32333
 const taxTier3 = 8333
 
-// PAYEE TAXES
+// PAYEE TAX PERCENTAGES
 const payeTier1 = 0.1
 const payeTier2 = 0.25
 const payeTier3 = 0.3
@@ -25,35 +26,30 @@ const nssfTier1 = 360
 const nssfTier2 = 720
 const nssfTotal = nssfTier1 + nssfTier2
 
-// NHIF DEDUCTIONS
+// NHIF 
 let nhif
+let insuaranceRelief
+let nhifAfterRelief
 
 
-// PAYEE
-// 1. Takes gross pay subjects it to first tax bracket
-// 2. gets difference of the remaining then subjects to next tax bracket
-grossPayTax = grossPay - nssfTotal
+grossPayTax = grossPay - nssfTotal //Gets taxable income
+
 if(grossPayTax <= 24000) {
-    // Prints out taxable pay after nssf deductions
-    console.log(`Taxable pay after nssf deductions: ${grossPayTax}`)
+  // subjecting taxable income to the tax bracket
+    payeDue = (grossPayTax * payeTier1) // Gets PAYE charges 
+    payeDue = payeDue - personalRelief // PAYE after personal reliefs deduction
 
-    // Gets PAYE charges 
-    payeDue = (grossPayTax * payeTier1)
-    console.log(`PAYE due before personal relief: ${payeDue}`)
-
-    // PAYE after personal reliefs deduction
-    payeDue = payeDue - personalRelief
-
-    if(payeDue < 0) {
+    if(payeDue < 0 || payeDue < personalRelief) {
         payeDue = 0
-        console.log(`PAYE DUE after personal relief: ${payeDue}`)
     } else {
-        console.log(`PAYE DUE after personal relief: ${payeDue}`)
+      payeDue = payeDue
     }
-    
-    // Calculate NHIF 
-    calculateNhif(grossPay)
-    console.log(`NHIF deduction: ${nhif}`)
+
+    // Logs tax results
+    printTotals(grossPay, nssfTotal, grossPayTax,payeDue, personalRelief)
+   
+    calculateNhif(grossPay) // Gets NHIF Contribution
+    getInsuaranceRelief(nhif) // Gets NHIF/Insuarance Relief
 
     // Calculates & prints the net pay after PAYE & NHIF deductions  
     netPay = grossPayTax - (payeDue + nhif)
@@ -61,74 +57,64 @@ if(grossPayTax <= 24000) {
     alert((`Net salary is: ${netPay}`))
 
 } else if (grossPayTax > 24000 && grossPayTax <= 32333) {
-    console.log(`Middle Gross pay: ${grossPay}`)
-
-    // taxableIncome = grossPay - nssfTotal
+  // Subjecting taxable income to first tax bracket
     taxableIncome = grossPayTax //=> get taxable pay
-    console.log(`Taxble Pay: ${taxableIncome}`)
-
     let tax1 = (taxTier1 * payeTier1) 
-   
     taxableIncome = taxableIncome - taxTier1
-    // console.log(`Taxble pay after tax1: ${taxableIncome}`)
 
-    // grossPay down here
     if(taxableIncome < taxTier3) {
-        // console.log(`less Middle Gross salary is: ${grossPay}`)
-        
-        // let tax2 = (grossPay * payeTier2)
+      // Subjecting taxable income to second tax bracket
         let tax2 = (taxableIncome * payeTier2)
-        // taxableIncome = (tax1 + tax2)
         taxCharged = tax1 + tax2
-        // console.log(`PAYE DUE before Relief: ${taxableIncome}`)
-        console.log(`PAYE DUE before Relief: ${taxCharged}`)
-
+        payeDue = taxCharged // Get PAYE
+        
+        // PAYE charges after personal Relief
         taxAfterRelief = taxCharged - personalRelief
         payeDue = taxAfterRelief
-        console.log(`PAYE DUE after Relief: ${payeDue.toFixed(2)}`)
+        
+        calculateNhif(grossPay) // logs nhif contribution
+        getInsuaranceRelief(nhif) // logs nhif/insuarance relief
 
-        calculateNhif(grossPay)
-        console.log(`NHIF deduction: ${nhif}`)
-
-        netPay = grossPay - (payeDue + nhif)
-        // console.log(`Middle Net salary is: ${grossPay}`)
-        console.log(`Middle Net salary is: ${netPay}`)
-        // alert(`Middle Net slary is: ${grossPay}`)
-        alert(`Middle Net slary is: ${netPay}`) 
+        payeDue = payeDue - insuaranceRelief // PAYE charges after NHIF/Insuarance Relief
+        
+        // Prints out the results 
+        printTotals(grossPay, nssfTotal, grossPayTax, payeDue, personalRelief)
+        
+        // Gets the net pay and prints it out
+        let totalDeductions = payeDue + nhif
+        netPay = grossPayTax - totalDeductions
+        console.log(`Net salary is: ${netPay}`)
+        alert(`Net slary is: ${netPay}`) 
     }     
 
 } else if (grossPayTax > 32333) {
-    console.log(`end gross salary: ${grossPay}`)
+    // subjecting taxable income to the tax brackets
     let tax1 = taxTier1 * payeTier1
     let tax2 = taxTier3 * payeTier2
-
     taxableIncome = grossPayTax
-    console.log(`Taxable pay: ${taxableIncome}`)
-   
     grossTaxed = grossPayTax - (taxTier1 + taxTier3)
-
     let tax3 = grossTaxed * payeTier3
     
     // Get full PAYE charges
     taxCharged = tax1 + tax2 + tax3 
     payeDue = taxCharged.toFixed(2)
-    console.log(`PAYE DUE before relief: ${payeDue}`)
 
-    // PAYE charges after personal Relief
-    taxAfterRelief = taxCharged - personalRelief
-    payeDue = taxAfterRelief
-    console.log(`PAYE DUE after Relief: ${payeDue.toFixed(2)}`)
+    calculateNhif(grossPay)  // Gets NHIF contribution
+    getInsuaranceRelief(nhif) // Gets NHIF/Insuarance relief
 
-    calculateNhif(grossPay)
-    console.log(`NHIF deduction: ${nhif}`)
-    // console.log(`Total deductions: ${payeDue + nhif +nssfTotal}`)
-    netPay = grossPay - (payeDue + nhif)
+    taxAfterRelief = taxCharged - personalRelief // PAYE charges after personal Relief
+    payeDue = taxAfterRelief - insuaranceRelief // PAYE charges after NHIF/Insuarance Relief
 
-    console.log((`End Net slary is: ${netPay}`))
-    alert(`End Net salary is: ${netPay}`) 
+    // Prints out the results 
+    printTotals(grossPay, nssfTotal, grossPayTax, payeDue, personalRelief)
+
+    // Gets the net pay and prints it out
+    netPay = grossPayTax - (payeDue + nhif)
+    console.log((`Net slary is: ${netPay}`))
+    alert(`Net salary is: ${netPay}`) 
 }
 
-
+// function that calculates NHIF contribution based on grosspay
 function calculateNhif(grossPay) {
 
     switch (true) {
@@ -186,6 +172,25 @@ function calculateNhif(grossPay) {
       default:
         nhif = 0;
     }
-  
+    console.log(`NHIF Contribution: ${nhif}`)
     return nhif;
-  }
+}
+
+// function that gets insuarance/NHIF relief
+function getInsuaranceRelief(nhif) {
+  const nhifRelief = 0.15
+
+  insuaranceRelief = nhifRelief * nhif
+  console.log(`Insurance/NHIF Relief: ${insuaranceRelief}`)
+  return insuaranceRelief
+} 
+
+// function to print out results
+function printTotals(grossPay, nssfTotal, grossPayTax, payeDue, personalRelief) {
+  console.log(`Gross Pay: ${grossPay}`)
+  console.log(`NSSF Contribution: ${nssfTotal}`)
+  console.log(`Taxable Pay: ${grossPayTax}`)
+  console.log(`PAYE Due before personal relief: ${payeDue.toFixed(2)}`)
+  console.log(`Personal Relief: ${personalRelief}`)
+  console.log(`PAYE DUE after Relief: ${payeDue.toFixed(2)}`)
+} 
